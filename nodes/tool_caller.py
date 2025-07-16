@@ -4,17 +4,31 @@ from utils.logger import timed_node
 class ToolCaller:
     def __init__(self):
         pass
-    
+
     @timed_node("tool_caller")
     def __call__(self, state):
-        action=state.get("planner_output", {})
-        tool_name=action.get("tool_name")
-        tool_input=action.get("input", "")
+        action = getattr(state, "planner_output", None)
 
-        tool_func=get_tool(tool_name)
+        if not isinstance(action, dict):
+            return {
+                **state.dict(),
+                "tool_output": "Invalid planner output: expected dict, got None or invalid type."
+            }
+
+        tool_name = action.get("tool_name")
+        tool_input = action.get("input", "")
+
+        tool_func = get_tool(tool_name)
         if not tool_func:
-            state["tool_output"]=f"Tool {tool_name} not found"
-            return state
-        result=tool_func(tool_input)
-        state["tool_output"]=result
-        return result
+            return {
+                **state.dict(),
+                "tool_output": f"Tool '{tool_name}' not found."
+            }
+        
+        print(f"[Tool Caller]]: {result}")
+        
+        result = tool_func(tool_input)
+        return {
+            **state.dict(),
+            "tool_output": result
+        }

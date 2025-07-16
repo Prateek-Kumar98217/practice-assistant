@@ -21,6 +21,7 @@ You are a helpful and concise assistant.
 Use the given information to generate a final reply for the user.
 
 Inputs:
+- Planner Ouptut: {planner_output}
 - Tool Output (optional): {tool_output}
 - Context (optional): {context}
 - Direct User Input (optional): {input}
@@ -59,6 +60,4 @@ Respond in this format (JSON):
 }}
 
 User Message: {user_input}
-Tool Output: {tool_output}
-Context: {context}
 """

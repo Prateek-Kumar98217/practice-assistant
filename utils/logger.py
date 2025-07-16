@@ -1,9 +1,9 @@
-from datetime import time
+import time
 def timed_node(name):
     def decorator(func):
-        def wrapper(state):
+        def wrapper(*args, **kwargs):
             start=time.time()
-            result=func(state)
+            result=func(*args, **kwargs)
             end=time.time()
             duration=end-start
             print(f"[{name}] took {duration:.3f} seconds")

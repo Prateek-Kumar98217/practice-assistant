@@ -8,8 +8,8 @@ class PlannerNode:
 
     @timed_node("planner_node")
     def __call__(self, state: dict) -> dict:
-        user_input = state["messages"][-1].content
-        context = state.get("memories", "")
+        user_input = state.messages[-1]
+        context = getattr(state, "memories", "")
 
         prompt = PLANNER_PROMPT.format(
             user_input=user_input,
@@ -18,9 +18,14 @@ class PlannerNode:
 
         try:
             response = self.llm.invoke(prompt)
-            action = json.loads(response)
+            print(f"[Plannner Raw]: {response}")
+            action = json.loads(response.content)
         except Exception:
             action = {"action": "respond_directly", "tool_name": None, "input": user_input}
 
-        state["planner_output"] = action
-        return state
+        print(f"[Planner]: {action}")
+
+        return {
+            **state.dict(),
+            "planned_output": action
+        }

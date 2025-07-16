@@ -7,14 +7,16 @@ class OutputSynthesizerNode:
 
     @timed_node("synthesizer")
     def __call__(self, state: dict) -> dict:
-        planner_action = state.get("planner_output", {})
-        tool_output = state.get("tool_output", "")
-        context = state.get("memories", "")
+        planner_output = getattr(state, "planner_output", "")
+        tool_output = getattr(state, "tool_output", "")
+        context = getattr(state, "memories", "")
+        user_input=state.messages[-1]
 
         prompt = FINAL_RESPONSE_PROMPT.format(
+            planner_output=planner_output,
             tool_output=tool_output,
             context=context,
-            input=planner_action.get("input", "")
+            input= user_input
         )
 
         try:
@@ -22,5 +24,6 @@ class OutputSynthesizerNode:
         except Exception as e:
             final = f"(LLM Error): {str(e)}"
 
-        state["final_output"] = final
-        return state
+        return{ 
+            **state.dict(),
+            "final_output": final}
